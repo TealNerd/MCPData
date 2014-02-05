@@ -1,0 +1,202 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'de.undercouch:gradle-download-task:0.4'
+        classpath 'net.sf.opencsv:opencsv:2.3'
+    }
+}
+
+import de.undercouch.gradle.tasks.download.Download
+import au.com.bytecode.opencsv.CSVReader
+import java.text.SimpleDateFormat
+import java.util.TimeZone
+import java.util.Date
+
+apply plugin: 'maven'
+apply plugin: 'download-task'
+
+repositories {
+    flatDir {
+        name "fileRepo"
+        dirs "repo"
+    }
+}
+
+group = 'net.minecraftforge'
+version = makeVersion()
+
+def makeVersion() {
+    def d = new SimpleDateFormat('yyyyMMdd')
+    d.setTimeZone(TimeZone.getTimeZone('UTC'))
+    return d.format(new Date())
+}
+
+uploadArchives {
+    repositories {
+        if (project.hasProperty("filesmaven")) {
+            logger.info('Publishing to files server')
+            
+            mavenDeployer {
+                configuration = configurations.deployJars
+
+                repository(url: project.filesmaven.url) {
+                    authentication(userName: project.filesmaven.username, privateKey: project.filesmaven.key)
+                }
+
+                pom {
+                    groupId = project.group
+                    version = project.version
+                    artifactId = project.archivesBaseName
+                    project {
+                        name project.archivesBaseName
+                        packaging 'jar'
+                        description 'MCPData'
+                        url 'https://github.com/MinecraftForge/MCPData'
+
+                        scm {
+                            url 'https://github.com/MinecraftForge/MCPData'
+                            connection 'scm:git:git://github.com/MinecraftForge/MCPData.git'
+                            developerConnection 'scm:git:git@github.com:MinecraftForge/MCPData.git'
+                        }
+
+                        issueManagement {
+                            system 'github'
+                            url 'https://github.com/MinecraftForge/MCPData/issues'
+                        }
+
+                        /*
+                        licenses {
+                            license {
+                                name 'None, Dont ship it unless MCP team tells you you can.'
+                                url ''
+                                distribution 'repo'
+                            }
+                        }
+                        */
+
+                        developers {
+                            developer {
+                                id 'Searge'
+                                name 'Searge'
+                                roles { role 'Orginizer' }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            logger.info('Publishing to repo folder')
+            
+            mavenDeployer {
+                repository(url: 'file://localhost/' + project.file('repo').getAbsolutePath())
+            }
+        }
+    }
+}
+
+logger.info(version)
+
+task cleanMethods(type:CleanCSV) {
+    outputs.upToDateWhen { false }
+    download {
+        src 'http://mcpold.ocean-labs.de/files/mcptest/methods.csv'
+        dest buildDir
+    }
+    input  file('build/methods.csv')
+    output file('data/methods.csv')
+}
+task cleanFields(type:CleanCSV) {
+    outputs.upToDateWhen { false }
+    download {
+        src 'http://mcpold.ocean-labs.de/files/mcptest/fields.csv'
+        dest buildDir
+    }
+    input  file('build/fields.csv')
+    output file('data/fields.csv')
+}
+
+class CleanCSV extends DefaultTask {
+    @InputFile
+    def File input
+    @OutputFile
+    def File output
+    
+    class Info implements Comparable<Info> {
+        def String srg
+        def String name
+        def int side
+        def String desc
+        def int id
+        
+        Info(String[] data) {
+            srg = clean(data[0])
+            name = clean(data[1])
+            side = 2 //Integer.parseInt(data[2])
+            desc = clean(data[3])
+            try {
+                id = Integer.parseInt(srg.split('_')[1].replace('i', ''))
+            } catch (Exception) {
+                id = 0
+            }
+        }
+
+        def String clean(String s) {
+            if (!s.startsWith('"') || !s.endsWith('"') || !s.contains(',')) return s
+            else s.substring(1, s.length() - 1)
+        }
+
+        def int compareTo(Info o) {
+            id - o.id
+        }
+
+        def String toString() {
+            srg + ',' + name + ',' + side + ',' + (desc.contains(',') ? '"' + desc + '"' : desc)
+        }
+    }
+    
+    @TaskAction
+    def doTask() {
+        logger.lifecycle('asdfasdf ' + input)
+        List<String[]> rows = new CSVReader(new InputStreamReader(input.newInputStream())).readAll()
+        Map<String, Info> map = new HashMap<String, Info>()
+        for (String[] s : rows) {
+            if (s[0] != 'searge') {
+                Info i = new Info(s)
+                if (!map.containsKey(i.srg)) {
+                    map.put(i.srg, i)
+                }
+            }
+        }
+
+        ArrayList<Info> v = new ArrayList<Info>(map.values())
+        Collections.sort(v)
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output), 'utf-8'))
+        out.write('searge,name,side,desc\n')
+        for (Info i : v) {
+            out.write(i.toString())
+            out.write('\n')
+        }
+        out.close()
+    }
+}
+
+task createSnapshot(type: Zip) {
+    outputs.upToDateWhen { false }
+    dependsOn 'cleanFields', 'cleanMethods'
+    from file('data')
+}
+
+artifacts {
+    archives createSnapshot
+}
