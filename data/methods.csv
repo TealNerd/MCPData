@@ -3,7 +3,7 @@ func_70000_a,addServerStatsToSnooper,2,
 func_70001_b,addServerTypeToSnooper,2,
 func_70002_Q,isSnooperEnabled,2,Returns whether snooping is enabled or not.
 func_70003_b,canCommandSenderUseCommand,2,Returns true if the command sender is allowed to use the given command.
-func_70005_c_,getCommandSenderName,2,Gets the name of this command sender (usually username, but possibly 'Rcon')
+func_70005_c_,getCommandSenderName,2,"Gets the name of this command sender (usually username, but possibly 'Rcon')"
 func_70007_b,resetLog,2,Clears the RCon log
 func_70008_c,getLogContents,2,Gets the contents of the RCon log
 func_70011_f,getDistance,2,'Gets the distance to the position. Args: x, y, z'
