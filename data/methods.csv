@@ -279,7 +279,7 @@ func_70801_i,getSlimeParticle,2,Returns the name of a particle effect that may b
 func_70802_j,createInstance,2,
 func_70803_o,getJumpSound,2,Returns the name of the sound played when the slime jumps.
 func_70804_p,makesSoundOnLand,2,Returns true if the slime makes a sound when it lands after a jump (based upon the slime's size)
-func_70805_n,getAttackStrength,2,Gets the amount of damage dealt to the player when "attacked" by the slime.
+func_70805_n,getAttackStrength,2,Gets the amount of damage dealt to the player when 'attacked' by the slime.
 func_70806_k,getJumpDelay,2,Gets the amount of time the slime needs to wait between jumps.
 func_70807_r,makesSoundOnJump,2,Returns true if the slime makes a sound when it jumps (based upon the slime's size)
 func_70808_l,alterSquishAmount,2,
@@ -293,10 +293,10 @@ func_70821_d,shouldAttackPlayer,2,Checks to see if this enderman should be attac
 func_70823_r,isScreaming,2,
 func_70824_q,getCarryingData,2,Get the metadata of the block an enderman carries
 func_70825_j,teleportTo,2,Teleport the enderman
-func_70829_a,setCreeperState,2,"Sets the state of creeper, -1 to idle and 1 to be 'in fuse'"
+func_70829_a,setCreeperState,2,Sets the state of creeper, -1 to idle and 1 to be 'in fuse'
 func_70830_n,getPowered,2,Returns true if the creeper is powered by a lightning bolt.
 func_70831_j,getCreeperFlashIntensity,2,Params: (Float)Render tick. Returns the intensity of the creeper's flash when it is ignited.
-func_70832_p,getCreeperState,2,"Returns the current state of creeper, -1 is idle, 1 is 'in fuse'"
+func_70832_p,getCreeperState,2,Returns the current state of creeper, -1 is idle, 1 is 'in fuse'
 func_70835_c,becomeAngryAt,2,Causes this PigZombie to become angry at the supplied Entity (which will be a player).
 func_70839_e,setBesideClimbableBlock,2,"Updates the WatchableObject (Byte) created in entityInit(), setting it to 0x01 if par1 is true or 0x00 if it is false."
 func_70841_p,isBesideClimbableBlock,2,Returns true if the WatchableObject (Byte) is 0x01 otherwise returns false. The WatchableObject is updated using setBesideClimableBlock.
